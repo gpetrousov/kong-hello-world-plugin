@@ -44,13 +44,12 @@ function hello_world_plugin:access(plugin_conf)
 end
 
 
---[[ runs in the 'header_filter_by_lua_block'
+-- runs in the 'header_filter_by_lua_block'
 function hello_world_plugin:header_filter(plugin_conf)
 
-  -- your custom code here, for example;
   kong.response.set_header(plugin_conf.response_header, "this is on the response")
 
-end --]]
+end
 
 
 --[[ runs in the 'body_filter_by_lua_block'
