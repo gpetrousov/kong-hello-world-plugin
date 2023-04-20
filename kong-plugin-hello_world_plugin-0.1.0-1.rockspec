@@ -1,5 +1,5 @@
-local plugin_name = "myplugin"
-local package_name = "kong-plugin-" .. plugin_name
+local plugin_name = "hello_world_plugin"
+local package_name = "kong_plugin-" .. plugin_name
 local package_version = "0.1.0"
 local rockspec_revision = "1"
 
