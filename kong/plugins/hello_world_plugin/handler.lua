@@ -5,7 +5,7 @@ local plugin = {
 
 
 function hello_world_plugin:init_worker()
-  kong.log("Hello world plugin init_worker...")
+  kong.log.debug("Hello world plugin init_worker...")
 end
 
 --[[ runs in the 'ssl_certificate_by_lua_block'
