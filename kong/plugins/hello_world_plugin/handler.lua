@@ -4,7 +4,7 @@ local plugin = {
 }
 
 
-function hello_world_plugin:init_worker()
+function plugin:init_worker()
   kong.log.debug("Hello world plugin init_worker...")
 end
 
@@ -35,17 +35,24 @@ end --]]
 
 
 -- runs in the 'access_by_lua_block'
-function hello_world_plugin:access(plugin_conf)
+function plugin:access(plugin_conf)
 
-  -- your custom code here
-  kong.log.inspect(plugin_conf)   -- check the logs for a pretty-printed config!
+  kong.log("========================>plugin:access() hit!<==============================")
+  local normalized_path = kong.request.get_path()
+  local raw_path = kong.request.get_raw_path()
+  kong.log("Normalized requested path:", normalized_path)
+  kong.log("Raw requested path:", raw_path)
+
+  kong.log("Path with query: ", kong.request.get_path_with_query())
+  kong.log("Path with raw query: ", kong.request.get_raw_query())
+
   kong.service.request.set_header(plugin_conf.request_header, "this is on a request")
 
 end
 
 
 -- runs in the 'header_filter_by_lua_block'
-function hello_world_plugin:header_filter(plugin_conf)
+function plugin:header_filter(plugin_conf)
 
   kong.response.set_header(plugin_conf.response_header, "this is on the response")
 
@@ -71,4 +78,4 @@ end --]]
 
 
 -- return our plugin object
-return hello_world_plugin
+return plugin
