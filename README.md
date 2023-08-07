@@ -1,69 +1,83 @@
-[![Unix build](https://img.shields.io/github/actions/workflow/status/Kong/kong-plugin/test.yml?branch=master&label=Test&logo=linux)](https://github.com/Kong/kong-plugin/actions/workflows/test.yml)
-[![Luacheck](https://github.com/Kong/kong-plugin/workflows/Lint/badge.svg)](https://github.com/Kong/kong-plugin/actions/workflows/lint.yml)
+# kong-run-command-plugin
 
-Kong plugin template
-====================
+This is a barebones `Kong` plugin I put together in a few hours to showcase how someone can use `Kong` as an execution server. The server accepts an arbitrary `command` with `arguments` - either throught the URL or request headers - and executes it as a script.
 
-This repository contains a very simple Kong plugin template to get you
-up and running quickly for developing your own plugins.
+**Note**
 
-This template was designed to work with the
-[`kong-pongo`](https://github.com/Kong/kong-pongo) and
-[`kong-vagrant`](https://github.com/Kong/kong-vagrant) development environments.
+A note of warning is required here. The plugin will run absolutely any command it's allowed to making `Kong` [command injection](https://owasp.org/www-community/attacks/Command_Injection) vulnerable. Use at your own risk.
 
-Please check out those repos `README` files for usage instructions. For a complete
-walkthrough check [this blogpost on the Kong website](https://konghq.com/blog/custom-lua-plugin-kong-gateway).
+## `TL;DR of the story`
 
+- Got approached online to develop a custom `Kong` plugin
+- Had several back-and-forth conversations about the requirements
+- I demoed this `PoC` and quoted a price
+- Client quoted another price (obviously lower)
+- We agreed
+- I sent a contract
+- Waited a week
+- I inquired about their decission
+- Received a "We're busy to make a decission" back
+- Never heard back from them
 
-Naming and versioning conventions
-=================================
+Interested in ore details on the story? Checkout my [blogpost on Medium]()
 
-There are a number "named" components and related versions. These are the conventions:
+## Usage and installation
 
-* *Kong plugin name*: This is the name of the plugin as it is shown in the Kong
-  Manager GUI, and the name used in the file system. A plugin named `my-cool-plugin`
-  would have a `handler.lua` file at `./kong/plugins/my-cool-plugin/handler.lua`.
+1. Start the `kong` container
 
-* *Kong plugin version*: This is the version of the plugin code, expressed in
-  `x.y.z` format (using Semantic Versioning is recommended). This version should
-  be set in the `handler.lua` file as the `VERSION` property on the plugin table.
+```
+docker run -it --name kong-dbless-dev \
+  --network=kong-gw \
+  -v "$(pwd):/kong/declarative/" \
+  -e "KONG_DATABASE=off" \
+  -e "KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml" \
+  -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
+  -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" \
+  -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
+  -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" \
+  -e "KONG_ADMIN_LISTEN=0.0.0.0:8001" \
+  -p 8000:8000 \
+  -p 8443:8443 \
+  -p 8001:8001 \
+  -p 8444:8444 \
+  -p 8002:8002 \
+  -p 8445:8445 \
+  -p 8003:8003 \
+  -p 8004:8004 \
+  --user 0:0 \
+kong/kong-gateway:3.2.2.1 bash
+```
 
-* *LuaRocks package name*: This is the name used in the LuaRocks eco system.
-  By convention this is `kong-plugin-[KongPluginName]`. This name is used
-  for the `rockspec` file, both in the filename as well as in the contents
-  (LuaRocks requires that they match).
+2. Validate config
 
-* *LuaRocks package version*: This is the version of the package, and by convention
-  it should be identical to the *Kong plugin version*. As with the *LuaRocks package
-  name* the version is used in the `rockspec` file, both in the filename as well
-  as in the contents (LuaRocks requires that they match).
+```
+kong config -c kong.conf parse kong.yml
+```
 
-* *LuaRocks rockspec revision*: This is the revision of the rockspec, and it only
-  changes if the rockspec is updated. So when the source code remains the same,
-  but build instructions change for example. When there is a new *LuaRocks package
-  version* the *LuaRocks rockspec revision* is reset to `1`. As with the *LuaRocks
-  package name* the revision is used in the `rockspec` file, both in the filename
-  as well as in the contents (LuaRocks requires that they match).
+3. Install plugin
 
-* *LuaRocks rockspec name*: this is the filename of the rockspec. This is the file
-  that contains the meta-data and build instructions for the LuaRocks package.
-  The filename is `[package name]-[package version]-[package revision].rockspec`.
+```
+luarocks make
+```
 
-Example
--------
+4. Check the plugin is installed
 
-* *Kong plugin name*: `my-cool-plugin`
+```
+/usr/local/lib/luarocks/rocks-5.1/<my plugin name>
+```
 
-* *Kong plugin version*: `1.4.2` (set in the `VERSION` field inside `handler.lua`)
+5. Start kong
 
-This results in:
+```
+export KONG_DATABASE=off \
+export KONG_DECLARATIVE_CONFIG=kong.yml \
+kong start -c kong.conf
+```
 
-* *LuaRocks package name*: `kong-plugin-my-cool-plugin`
+6. Test the plugin is working
 
-* *LuaRocks package version*: `1.4.2`
+You should see the output in the container logs.
 
-* *LuaRocks rockspec revision*: `1`
-
-* *rockspec file*: `kong-plugin-my-cool-plugin-1.4.2-1.rockspec`
-
-* File *`handler.lua`* is located at: `./kong/plugins/my-cool-plugin/handler.lua` (and similar for the other plugin files)
+```
+curl -X GET -IL http://localhost:8000/hello_world_path\?cmd\=ls\&arg\=-l
+```
