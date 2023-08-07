@@ -26,7 +26,7 @@ Interested in ore details on the story? Checkout my [blogpost on Medium]()
 1. Start the `kong` container
 
 ```
-docker run -it --name kong-dbless-dev \
+docker run -it --rm --name kong-dbless-dev \
   --network=kong-gw \
   -v "$(pwd):/kong/declarative/" \
   -e "KONG_DATABASE=off" \
@@ -63,14 +63,13 @@ luarocks make
 4. Check the plugin is installed
 
 ```
-/usr/local/lib/luarocks/rocks-5.1/<my plugin name>
+/usr/local/lib/luarocks/rocks-5.1/kong-hello-world-plugin
 ```
 
 5. Start kong
 
 ```
-export KONG_DATABASE=off \
-export KONG_DECLARATIVE_CONFIG=kong.yml \
+export KONG_DATABASE=off
 kong start -c kong.conf
 ```
 
