@@ -1,0 +1,33 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - host: mockbin.org
+    name: hello_world_svc
+    port: 80
+    protocol: http
+    routes:
+      - name: hello_world_route
+        paths:
+          - /hello_world_path
+        strip_path: true
+
+  - host: mockbin.org
+    name: mockbin
+    port: 80
+    protocol: http
+    routes:
+      - name: mockbin
+        paths:
+          - /mockbin
+        strip_path: true
+        methods:
+          - "GET"
+      - name: mock
+        paths:
+          - /mock
+        strip_path: true
+
+plugins:
+  - name: hello_world_plugin
+    service: hello_world_svc
