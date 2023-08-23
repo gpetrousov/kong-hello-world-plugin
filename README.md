@@ -2,24 +2,11 @@
 
 This is a barebones `Kong` plugin I put together in a few hours to showcase how someone can use `Kong` as an execution server. The server accepts an arbitrary `command` with `arguments` - either throught the URL or request headers - and executes it as a script.
 
+Checkout my [blogpost on Medium](https://medium.com/@petrousov/custom-kong-plugins-revisited-c20a96719122)
+
 **Note**
 
 A note of warning is required here. The plugin will run absolutely any command it's allowed to making `Kong` [command injection](https://owasp.org/www-community/attacks/Command_Injection) vulnerable. Use at your own risk.
-
-## `TL;DR of the story`
-
-- Got approached online to develop a custom `Kong` plugin
-- Had several back-and-forth conversations about the requirements
-- I demoed this `PoC` and quoted a price
-- Client quoted another price (obviously lower)
-- We agreed
-- I sent a contract
-- Waited a week
-- I inquired about their decission
-- Received a "We're busy to make a decission" back
-- Never heard back from them
-
-Interested in ore details on the story? Checkout my [blogpost on Medium]()
 
 ## Usage and installation
 
